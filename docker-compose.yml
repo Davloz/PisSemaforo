@@ -1,0 +1,49 @@
+version: '3'
+services:
+    frontend:
+        container_name: frontend_cont
+        build: ./FRONT_PIS
+        ports:
+            - 500:3000
+        depends_on:
+            - backend
+        networks:
+            - mynetwork
+    backend:
+        container_name: backend_cont
+        build: ./back_pis
+        ports:
+            - 3010:3010
+        environment:
+            MYSQL_HOST: mysql
+            MYSQL_PORT: 3306
+            MYSQL_DATABASE: semaforo_pis
+            MYSQL_USER: desarrollo
+            MYSQL_PASSWORD: desarrollo
+        depends_on:
+            - mysql
+        networks:
+            - mynetwork
+        volumes:
+        - ./back_pis/wait-for-it.sh:/usr/bin/wait-for-it.sh
+    mysql:
+        container_name: mysql_cont
+        image: mysql
+        ports:
+            - 3306:3306
+        environment:
+            - MYSQL_ROOT_PASSWORD=desarrollo
+        command: --default-authentication-plugin=mysql_native_password --init-file /docker-entrypoint-initdb.d/init.sql
+        networks:
+            - mynetwork
+        volumes:
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+            - mysql_data:/var/lib/mysql
+networks:
+    mynetwork:
+
+volumes:
+  mysql_data:
+
+
+
